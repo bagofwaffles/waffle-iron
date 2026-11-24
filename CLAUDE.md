@@ -13,9 +13,8 @@ what lands on `main` is live.
 
 ## What goes in a change
 
-- Work on a `dev/<topic>` branch cut from `main`, in a worktree under `.wt/`; never commit directly on
-  `main`. Merge back locally with a merge commit, `Merge dev/<topic>: <what it brings>`, then remove the
-  worktree and the branch.
+- This is a small project: commit directly on `main`. No `dev/` branches or worktrees are needed. Where
+  the shared git rules ask for them, this file wins.
 - One finished piece of work per commit, with `npm run check` passing first.
 - Commit subjects are `area: what changed`, lower case, about the behavior and not the process
   (`page:`, `release:`, `readme:`, `tools:`). No trailers or attribution lines.
