@@ -1,0 +1,14 @@
+{
+  "name": "waffle-iron",
+  "private": true,
+  "description": "Tools for the OP-XY and OP-1 Field: install waffle-boot, manage developer mode",
+  "license": "GPL-2.0-or-later",
+  "repository": "github:bagofwaffles/waffle-iron",
+  "homepage": "https://bagofwaffles.github.io/waffle-iron/",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check:leak": "python3 -I -B test/tools/test_leak_check.py && python3 -I -B tools/leak-check.py tree",
+    "check": "npm test && npm run check:leak"
+  }
+}

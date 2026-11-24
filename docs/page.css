@@ -1,0 +1,241 @@
+/* SPDX-License-Identifier: GPL-2.0-or-later */
+/* The install page: paper and ink, one amber accent, the unit drawn large above each step. */
+
+:root {
+	--paper: #f3f0e8;
+	--panel: #fbf9f4;
+	--ink: #1b1a17;
+	--mid: #6b675e;
+	--soft: #a39e92;
+	--line: #d9d4c7;
+	--amber: #f2a93b;
+	--amber-ink: #3a2603;
+	--amber-text: #9a5d00;
+	--ok: #2f7a3d;
+	--bad: #c0341d;
+	--sans: "Helvetica Neue", "Segoe UI Variable Text", "Segoe UI", Helvetica, Arial, sans-serif;
+	--mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+	color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--paper: #141310;
+		--panel: #1d1c18;
+		--ink: #ece9e0;
+		--mid: #a09c91;
+		--soft: #6a675f;
+		--line: #35332d;
+		--amber-text: #f2a93b;
+		--ok: #7cc28a;
+		--bad: #ff6f52;
+	}
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font: 16px/1.5 var(--sans);
+	-webkit-font-smoothing: antialiased;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	min-height: 100dvh;
+}
+
+a { color: inherit; text-underline-offset: 3px; }
+code, kbd { font-family: var(--mono); font-size: .9em; }
+kbd {
+	display: inline-block;
+	min-width: 1.7em;
+	padding: 0 .4em;
+	border: 1px solid var(--line);
+	border-bottom-width: 2px;
+	border-radius: 6px;
+	background: var(--panel);
+	text-align: center;
+}
+
+/* ---- the title ---- */
+
+.title { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+.blurb { margin: 0 0 28px; text-wrap: balance; font-size: 17px; line-height: 1.5; color: var(--mid); }
+.title span { font-size: 40px; line-height: 1; font-weight: 700; letter-spacing: -.03em; }
+
+/* ---- layout ---- */
+
+main { flex: 1; width: 100%; max-width: 860px; margin: 0 auto; padding: 36px 20px 24px; }
+
+/* ---- the unit ---- */
+
+.device { margin-bottom: 28px; }
+.device svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 14px 18px #0000002e); }
+.device .mark {
+	fill: none;
+	stroke: var(--amber);
+	stroke-width: 3.5;
+}
+.device .halo {
+	fill: none;
+	stroke: var(--amber);
+	stroke-width: 2.5;
+	transform-box: fill-box;
+	transform-origin: center;
+	animation: halo 1.6s ease-out infinite;
+}
+.device .dim { stroke-dasharray: 5 5; opacity: .8; }
+@keyframes halo {
+	from { transform: scale(1); opacity: .9; }
+	to { transform: scale(1.55); opacity: 0; }
+}
+.device .badge { fill: var(--amber); }
+.device .badge-n { fill: var(--amber-ink); font: 700 15px var(--sans); }
+@media (prefers-reduced-motion: reduce) {
+	.device .halo { animation: none; }
+}
+
+.device.two { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+.device figure { margin: 0; }
+.device figcaption { margin-top: 10px; font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mid); text-align: center; }
+
+/* ---- the step ---- */
+
+.panel .tag {
+	margin: 0 0 6px;
+	font: 12px var(--mono);
+	letter-spacing: .08em;
+	text-transform: uppercase;
+	color: var(--amber-text);
+}
+.panel h1 { margin: 0 0 12px; font-size: 34px; line-height: 1.12; letter-spacing: -.02em; font-weight: 600; }
+.panel p { margin: 0 0 12px; }
+.panel .lead { font-size: 18px; color: var(--mid); }
+.panel ul, .panel ol { margin: 0 0 14px; padding-left: 22px; max-width: 62ch; }
+.panel li { margin-bottom: 6px; }
+
+.do {
+	margin: 18px 0;
+	padding: 16px 18px;
+	border-left: 4px solid var(--amber);
+	border-radius: 0 6px 6px 0;
+	background: var(--panel);
+}
+.do h2 { margin: 0 0 6px; font: 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mid); }
+.do p:last-child, .do ul:last-child, .do ol:last-child { margin-bottom: 0; }
+.do ul, .do ol { max-width: none; }
+.do .big { font-size: 20px; font-weight: 600; }
+.do.bad { border-color: var(--bad); }
+.do.ok { border-color: var(--ok); }
+
+.note { color: var(--mid); font-size: 14px; }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 22px; }
+button.go, button.alt {
+	padding: 12px 22px;
+	border: 1.5px solid var(--ink);
+	border-radius: 6px;
+	font: 600 16px var(--sans);
+	cursor: pointer;
+}
+button.go { background: var(--ink); color: var(--paper); }
+button.go.amber { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
+button.alt { background: none; color: var(--ink); border-color: var(--line); font-weight: 500; }
+button:disabled { opacity: .4; cursor: default; }
+button.text { padding: 0; border: 0; background: none; color: var(--mid); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+.facts { margin: 16px 0 0; font-size: 14px; color: var(--mid); }
+.facts summary { cursor: pointer; }
+.found { display: grid; grid-template-columns: max-content 1fr; gap: 6px 20px; margin: 0; }
+.found dt { color: var(--mid); }
+.found dd { margin: 0; font-weight: 600; }
+.found dd small { display: block; font-weight: 400; color: var(--mid); }
+.ifaces { width: 100%; margin: 10px 0 0; border-collapse: collapse; font: 12px var(--mono); }
+.ifaces td, .ifaces th { padding: 5px 10px 5px 0; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
+.ifaces th { color: var(--soft); }
+.facts dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 10px 0 0; }
+.facts dt { color: var(--soft); }
+.facts dd { margin: 0; font-family: var(--mono); font-size: 12px; word-break: break-all; color: var(--ink); }
+
+
+footer { width: 100%; max-width: 860px; margin: 0 auto; padding: 20px 20px 40px; color: var(--soft); font-size: 13px; }
+footer p { margin: 0 0 4px; }
+
+@media (max-width: 820px) {
+	main { padding-top: 20px; }
+	.panel h1 { font-size: 27px; }
+	.brand span { display: none; }
+}
+
+.panel h1:focus { outline: none; }
+.panel progress { display: block; width: 100%; height: 10px; accent-color: var(--amber); }
+.do .sha { font: 12px var(--mono); word-break: break-all; color: var(--mid); }
+.do .sub { display: block; font-size: 13px; color: var(--soft); }
+.do li + li { margin-top: 8px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { padding: 5px 12px; border: 0; background: none; color: var(--mid); font: 13px var(--sans); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.do .from { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+button.alt.small { padding: 5px 12px; font-size: 13px; }
+
+/* ---- what to do with the unit: two keys, in the unit's own idiom ---- */
+
+/* Each choice is a key: a face, a rim, and a shadow edge it presses down into. Only transform and
+   box-shadow move, so a press shifts nothing around it. */
+.choices { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 22px 0 8px; }
+button.choice {
+	--face: var(--panel);
+	--rim: var(--line);
+	--edge: var(--line);
+	--text: var(--ink);
+	--sub: var(--mid);
+	display: grid;
+	grid-template-rows: auto auto 1fr;
+	align-content: start;
+	gap: 6px;
+	min-height: 168px;
+	padding: 20px 22px 22px;
+	border: 1.5px solid var(--rim);
+	border-radius: 14px;
+	background: var(--face);
+	box-shadow: 0 6px 0 var(--edge);
+	color: var(--text);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: transform .08s ease-out, box-shadow .08s ease-out;
+}
+button.choice.install { --face: var(--amber); --rim: #d48f2c; --edge: #b87618; --text: var(--amber-ink); --sub: #5a3a06; }
+button.choice.dev { --face: #2a2925; --rim: #2a2925; --edge: #0e0d0b; --text: #f3f0e8; --sub: #b4afa3; }
+button.choice:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--edge); }
+button.choice:focus-visible { outline: 3px solid var(--ink); outline-offset: 5px; }
+button.choice .glyph svg {
+	display: block;
+	margin-bottom: 14px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+button.choice .name { font-size: 22px; font-weight: 700; letter-spacing: -.015em; line-height: 1.15; }
+button.choice .what { font-size: 15px; line-height: 1.45; color: var(--sub); max-width: 34ch; }
+@media (prefers-color-scheme: dark) {
+	button.choice.install { --edge: #8f5a0e; }
+	button.choice.dev { --face: #34332e; --rim: #4d4b44; --edge: #050504; }
+}
+@media (max-width: 560px) {
+	.choices { grid-template-columns: 1fr; }
+	button.choice { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+	button.choice { transition: none; }
+}
+
+/* Start over sits below the steps, past a rule, so it does not read as one of them. */
+.restart { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); }

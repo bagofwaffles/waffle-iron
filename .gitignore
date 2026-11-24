@@ -1,0 +1,17 @@
+# The dev server's certificate and key
+/.dev/
+
+# Dependencies and tool output
+node_modules/
+npm-debug.log*
+__pycache__/
+*.pyc
+.DS_Store
+
+# Claude Code: only the shared settings are tracked
+/.claude/*
+!/.claude/settings.json
+.claude/settings.local.json
+
+# Private notes: never tracked
+CLAUDE.local.md

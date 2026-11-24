@@ -1,0 +1,10 @@
+{
+  "env": {
+    "TZ": "UTC"
+  },
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  }
+}
