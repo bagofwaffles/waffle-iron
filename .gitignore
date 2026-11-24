@@ -15,3 +15,6 @@ __pycache__/
 
 # Private notes: never tracked
 CLAUDE.local.md
+
+# Worktrees for dev/ branches
+/.wt/
