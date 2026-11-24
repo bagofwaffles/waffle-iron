@@ -239,3 +239,16 @@ button.choice .what { font-size: 15px; line-height: 1.45; color: var(--sub); max
 
 /* Start over sits below the steps, past a rule, so it does not read as one of them. */
 .restart { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); }
+
+/* Before a unit is found the keys are shown locked: flat, faded, not pressable. */
+button.choice:disabled { box-shadow: none; transform: translateY(4px); opacity: .72; cursor: default; }
+button.choice:disabled:active { transform: translateY(4px); }
+
+/* One line of state above the keys: what the page is waiting for, or that the unit is here. */
+.panel .status { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; font-size: 17px; color: var(--ink); }
+.status .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); animation: wait 1.4s ease-in-out infinite; }
+.status.on .dot { background: var(--ok); animation: none; }
+@keyframes wait { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) {
+	.status .dot { animation: none; }
+}

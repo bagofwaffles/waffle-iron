@@ -524,9 +524,20 @@ const GLYPH = {
 function choice(kind, title, text, onclick) {
 	const glyph = h('span.glyph');
 	glyph.innerHTML = '<svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">' + GLYPH[kind] + '</svg>';
-	return h('button.choice.' + kind, { type: 'button', onclick, 'aria-labelledby': 'choice-' + kind,
+	return h('button.choice.' + kind, { type: 'button', onclick, disabled: !onclick, 'aria-labelledby': 'choice-' + kind,
 		'aria-describedby': 'choice-' + kind + '-what' }, glyph,
 		h('span.name', { id: 'choice-' + kind }, title), h('span.what', { id: 'choice-' + kind + '-what' }, text));
+}
+
+// Both choices, live once a unit is found. Before that they show what the page does, locked, with
+// the status above them saying what unlocks them.
+function choices(unit, pick) {
+	const the = unit ? 'the ' + UNITS[unit].name : 'the unit';
+	return h('div.choices',
+		choice('install', 'Install waffle-boot', 'Restarts ' + the + ' into its upload screen, then shows the two ' +
+			'files to copy onto it.', pick && pick('install')),
+		choice('dev', 'Manage Dev Mode', 'Turns developer mode on or off from ' + the + '’s boot menu.',
+			pick && pick('dev')));
 }
 
 function render() {
@@ -541,7 +552,8 @@ function render() {
 	}
 	const name = unit ? UNITS[unit].name : 'your unit';
 	const found = state.step === 1 && (phase === 'present' || phase === 'boot');
-	const out = [found && state.mode !== 'install' ? null : h('p.tag', 'Step ' + state.step)];
+	const out = [state.step > 1 || (found && state.mode === 'install') ? h('p.tag', 'Step ' + state.step) : null];
+	const landing = state.step === 1 && !found;
 
 	if (state.step === 2) {
 		const u = UNITS[unit || 'op-xy'];
@@ -578,16 +590,16 @@ function render() {
 				h('li', 'Press ', h('kbd', '5. write os to boot partition'), '.'),
 				h('li', 'Wait until it says ', h('b', 'firmware written ok!'), ', then press ', h('kbd', '2'), '.'),
 				h('li', 'Press ', h('kbd', '6. reset'), '.'))));
-	} else if (phase === 'init') {
-		out.push(h('h1', 'Looking for your unit'),
-			h('p.lead', 'Allow MIDI when the browser asks, so the page can find the unit and read what it shows.'));
-	} else if (phase === 'nomidi') {
-		out.push(h('h1', 'MIDI not available'),
-			h('div.do.bad', h('p', state.note || 'This browser cannot reach the unit over MIDI.')),
-			h('p.note', 'Web MIDI needs Chrome or Edge on a computer, over https or on localhost.'));
-	} else if (phase === 'no-unit') {
-		out.push(h('h1', 'Plug in your unit'),
-			h('p.lead', 'Plug in your OP-XY or OP-1 Field and turn it on.'));
+	} else if (landing) {
+		out.push(h('h1', 'Install waffle-boot or manage dev mode'));
+		if (phase === 'nomidi')
+			out.push(h('div.do.bad', h('p', state.note || 'This browser cannot reach the unit over MIDI.'),
+				h('p', 'Web MIDI needs Chrome or Edge on a computer, over https or on localhost.')));
+		else
+			out.push(h('p.status', h('span.dot', { 'aria-hidden': 'true' }), phase === 'init' ?
+				'Allow MIDI when the browser asks, so the page can look for your unit.' :
+				'Plug in your OP-XY or OP-1 Field over USB and turn it on.'));
+		out.push(choices(null, null));
 	} else if (phase === 'present' || phase === 'boot') {
 		const choose = (mode) => () => {
 			state.mode = mode;
@@ -605,12 +617,8 @@ function render() {
 				h('div.actions', h('button.go.amber', { onclick: () => setDev(true), disabled: state.busy }, 'Enable'),
 					h('button.go', { onclick: () => setDev(false), disabled: state.busy }, 'Disable')));
 		else
-			out.push(h('h1', 'This is an ' + name),
-				h('div.choices',
-					choice('install', 'Install waffle-boot', 'Restarts the ' + name + ' into its upload screen, ' +
-						'then shows the two files to copy onto it.', choose('install')),
-					choice('dev', 'Manage Dev Mode', 'Turns developer mode on or off from the ' + name +
-						'’s boot menu.', choose('dev'))));
+			out.push(h('h1', 'This is an ' + name), h('p.status.on', h('span.dot', { 'aria-hidden': 'true' }),
+				'Found over USB. Choose what to do.'), choices(unit, choose));
 	}
 
 	if (state.note && phase !== 'nomidi')
