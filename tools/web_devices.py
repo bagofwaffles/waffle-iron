@@ -8,6 +8,7 @@ It writes op-xy.svg and op-1-field.svg, top views on one 17 x 6 key grid, and pa
 center and size of each part a step may point at (a key, a knob, the power switch, the USB port),
 in the drawing's own units. Every part also carries its name as an id in the drawing. Colors are
 CSS variables with the unit's own color as the fallback, so a page can restyle an inlined drawing.
+The OP-XY follows a photo of its front; the OP-1 Field is drawn the same way.
 """
 
 import json
@@ -29,20 +30,24 @@ BLACK_TILES = (3, 4.5, 5.5, 7, 8.5, 10, 11.5, 12.5, 14, 15.5, 17)
 
 XY = {
     'name': 'op-xy', 'title': 'OP-XY',
-    'body': '#222326', 'edge': '#0a0a0b', 'line': '#0b0b0c', 'key': '#232427', 'key-edge': '#3e4044',
-    'ink': '#e6e6e3', 'dim': '#0f0f10', 'screen': '#050506', 'black-key': '#232427',
-    'accent': '#e2412b', 'knobs': ('#3b3d42', '#7b7f87', '#b9bbbd', '#f3f3f0'), 'ring': '#2a2b2e',
-    'switch': '#bdbdb9', 'tile': '#2d2e31', 'shade': '#121214', 'mark': '#8a8c90',
-    'steps': ('#4b4f56', '#dcdbd6'),
+    'body': '#1e1f21', 'edge': '#09090a', 'line': '#09090a', 'key': '#2f3033', 'key-edge': '#3e4044',
+    'ink': '#e6e6e3', 'screen': '#050506', 'glass': '#17181b', 'black-key': '#232427',
+    'accent': '#e2412b', 'knobs': ('#3b3d42', '#7b7f87', '#b9bbbd', '#f3f3f0'), 'collar': '#0c0c0d',
+    'dish': '#222325', 'dish-edge': '#0b0b0c', 'volume': '#b4b6b8', 'switch': '#d9d9d5', 'tile': '#27282a',
+    'well': '#0a0a0b', 'hole': '#050506', 'mark': '#8d8f93', 'steps': ('#4b4f56', '#dcdbd6'),
+    'well-depth': .95, 'dip': .3, 'sheen': .09, 'lit': (.05, .12), 'rim': .07, 'grille': 'octagon', 'tick': True,
 }
 FIELD = {
     'name': 'op-1-field', 'title': 'OP-1 Field',
-    'body': '#cfcfcc', 'edge': '#9a9a96', 'line': '#1b1b1c', 'key': '#f2f0eb', 'key-edge': '#cbc7bf',
-    'ink': '#454543', 'dim': '#3a3a38', 'screen': '#0b0b0c', 'black-key': '#151516',
-    'accent': '#e2562b', 'knobs': ('#2b3563', '#b59a62', '#909293', '#e2562b'), 'ring': '#f2f0eb',
-    'switch': '#bdbdb9', 'tile': '#e6e3dd', 'shade': '#bdb9b0', 'mark': '#3b3b3a',
-    'tall-keys': True, 'stroke': 1.2, 'sub-weight': 500,
+    'body': '#dbdbd8', 'edge': '#a6a6a2', 'line': '#1b1b1c', 'key': '#f8f7f3', 'key-edge': '#d3cfc7',
+    'ink': '#454543', 'screen': '#0b0b0c', 'glass': '#1a1b1d', 'black-key': '#151516',
+    'accent': '#e2562b', 'knobs': ('#2b3563', '#b59a62', '#909293', '#e2562b'), 'collar': '#f8f7f3',
+    'dish': '#e6e4de', 'dish-edge': '#cdc9c1', 'volume': '#f8f7f3', 'switch': '#c9c9c5', 'tile': '#eeece7',
+    'well': '#c6c2b9', 'hole': '#2a2a29', 'mark': '#3b3b3a',
+    'well-depth': .6, 'dip': .06, 'sheen': .6, 'lit': (.35, .02), 'rim': .6, 'grille': 'round',
+    'light': True, 'stroke': 1.2, 'sub-weight': 500,
 }
+R = 16.5                            # a key's cap
 
 
 def cx(col):
@@ -130,14 +135,21 @@ class Drawing:
         if kind == 'pad':
             return ('<circle cx="%s" cy="%s" r="6" %s/><circle cx="%s" cy="%s" r="1.6" fill="%s"/>'
                     '<path d="M%s %sv5" %s/>' % (n(x), n(y), line, n(x), n(y - 0.5), ink, n(x), n(y + 1), line))
-        if kind == 'pen':
-            return ('<path d="M%s %sl4-9 5 5zM%s %sl3.5-3.5 5 5-3.5 3.5z" fill="%s"/>'
-                    % (n(x - 8), n(y + 8), n(x - 2.5), n(y - 3), ink))
+        if kind == 'nib':
+            return ('<g transform="translate(%s %s) rotate(45)"><path d="M0 9.5l-4.3-7.5 1.5-4.5h5.6l1.5 4.5z'
+                    'M-3.2-8h6.4v3.2h-6.4z" fill="%s"/><path d="M0 8v-5.5" fill="none" stroke="%s" '
+                    'stroke-width="1.1"/><circle cy="1.5" r="1.2" fill="%s"/></g>'
+                    % (n(x), n(y), ink, self.var('key'), self.var('key')))
         if kind == 'metro':
             return ('<path d="M%s %sh13l-4-15h-5z" fill="%s"/><path d="M%s %sv-8" fill="none" stroke="%s" '
                     'stroke-width="1.6"/>' % (n(x - 6.5), n(y + 7.5), ink, n(x), n(y + 3), self.var('key')))
-        if kind == 'arch':
-            return '<path d="M%s %sv-3a5 5 0 0 1 10 0v3" %s/>' % (n(x - 5), n(y + 3), line)
+        if kind == 'sine':
+            return '<path d="M%s %sc3-10 5.5-10 8 0s5 10 8 0" %s/>' % (n(x - 8), n(y - .5), line)
+        if kind == 'hatch':
+            return ('<rect x="%s" y="%s" width="9" height="9" fill="%s"/><path d="M%s %sl3-3M%s %sl6-6M%s %sl9-9'
+                    'M%s %sl6-6M%s %sl3-3" fill="none" stroke="%s" stroke-width=".8"/>'
+                    % (n(x - 4.5), n(y - 4.5), ink, n(x - 4.5), n(y - 1.5), n(x - 4.5), n(y + 1.5),
+                       n(x - 4.5), n(y + 4.5), n(x - 1.5), n(y + 4.5), n(x + 1.5), n(y + 4.5), self.var('key')))
         if kind == 'plug':
             return ('<path d="M%s %sh19" %s/><rect x="%s" y="%s" width="9" height="5" rx="1" fill="%s"/>'
                     '<circle cx="%s" cy="%s" r="1.6" fill="%s"/>'
@@ -235,32 +247,39 @@ class Drawing:
         return ('<text x="%s" y="%s" font-size="%s" font-weight="%d" fill="%s">%s</text>'
                 % (num(x), num(y + size * 0.35), num(size), weight, self.var(color), label))
 
-    def disc(self, x, y, r, fill, edge='key-edge'):
-        """A raised round cap, with its shadow below it where the unit's look has one."""
-        shade = ''
-        if 'shade' in self.look:
-            shade = '<circle cx="%s" cy="%s" r="%s" fill="%s"/>' % (num(x), num(y + 2.5), num(r), self.var('shade'))
-        return shade + '<circle cx="%s" cy="%s" r="%s" fill="%s" stroke="%s" stroke-width="1.2"/>' % (
-            num(x), num(y), num(r), fill, self.var(edge))
+    def uid(self, what):
+        return '%s-%s' % (self.look['name'], what)
 
-    def key(self, name, col, row, mark='', label='', size=13, r=19, x=None, color='ink', weight=500,
+    def shine(self, x, y, r):
+        return '<circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/>' % (num(x), num(y), num(r), self.uid('sheen'))
+
+    def disc(self, x, y, r, fill):
+        """A round cap in the soft dish it sits in."""
+        edge = ' stroke="%s" stroke-width="1"' % self.var('key-edge') if self.look.get('light') else ''
+        return ('<circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/><circle cx="%s" cy="%s" r="%s" fill="%s"%s/>%s'
+                % (num(x), num(y), num(r / .7), self.uid('well'), num(x), num(y), num(r), fill, edge,
+                   self.shine(x, y, r)))
+
+    def key(self, name, col, row, mark='', label='', size=13, r=R, x=None, color='ink', weight=500,
             sub='', led=False, side=''):
         """A round key in one cell; mark is a glyph, label is text. sub goes small under it, as text or
         a glyph's name; side is a small glyph right of the label; led is the hole at the cap's top."""
         x = cx(col) if x is None else x
         y = cy(row)
-        up = 4.5 if sub else 0
-        at = x - 6.5 if side else x
-        inner = self.glyph(mark, x, y - up, color) if mark else ''
+        up = 4 if sub else 0
+        at = x - 6 if side else x
+        inner = ''
+        if led:
+            inner += '<circle cx="%s" cy="%s" r="1.5" fill="%s" fill-opacity=".55"/>' % (
+                num(x), num(y - 12), self.var('hole'))
+        inner += self.glyph(mark, x, y - up, color) if mark else ''
         if label:
             inner += self.text(label, at, y - up, size, weight=weight)
         if side:
-            inner += self.glyph(side, x + 6.5, y)
+            inner += self.glyph(side, x + 6, y)
         if sub:
-            small = self.glyph(sub, x, y + 9)
-            inner += small or self.text(sub, x, y + 9, 7.5, weight=self.look.get('sub-weight', 600))
-        if led:
-            inner += '<circle cx="%s" cy="%s" r="2" fill="%s"/>' % (num(x), num(y - 13), self.var('line'))
+            small = self.glyph(sub, x, y + 8)
+            inner += small or self.text(sub, x, y + 8.5, 7, weight=self.look.get('sub-weight', 500))
         self.add('<g id="%s">%s%s</g>' % (name, self.disc(x, y, r, self.var('key')), inner))
         self.part(name, x, y, 2 * r, 2 * r, 'circle')
 
@@ -271,7 +290,7 @@ class Drawing:
     def bed(self):
         """What the keys sit in: separate tiles on a dark bed."""
         v = self.var
-        tall = self.look.get('tall-keys')
+        tall = self.look.get('light')
         d = self.tile(1, 1, 2, 2) + self.tile(3, 1, 2, 1) + self.tile(3, 2) + self.tile(4, 2)
         for col in (9, 11, 13, 15):
             d += self.tile(col, 1, 2, 2)
@@ -294,49 +313,104 @@ class Drawing:
         self.add('<path d="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
                  % (d, v('tile'), v('tile')))
 
+    def gradients(self):
+        look, v = self.look, self.var
+        deep = look['well-depth']
+        fade = ('<radialGradient id="%s"><stop offset=".66" stop-color="%s" stop-opacity="%s"/>'
+                '<stop offset=".8" stop-color="%s" stop-opacity="%s"/>'
+                '<stop offset="1" stop-color="%s" stop-opacity="0"/></radialGradient>')
+        down = ('<linearGradient id="%s" x2="%s" y2="1"><stop stop-color="#fff" stop-opacity="%s"/>'
+                '<stop offset="%s" stop-color="#fff" stop-opacity="0"/>'
+                '<stop offset="1" stop-color="#000" stop-opacity="%s"/></linearGradient>')
+        return (fade % (self.uid('well'), v('well'), deep, v('well'), num(deep * .7), v('well'))
+                + fade % (self.uid('step'), '#000', .4, '#000', .24, '#000')
+                + '<radialGradient id="%s"><stop offset=".55" stop-color="#000" stop-opacity="%s"/>'
+                  '<stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>'
+                % (self.uid('dip'), look['dip'])
+                + down % (self.uid('sheen'), 0, look['sheen'], .7, .06)
+                + down % (self.uid('glass'), 1, .08, 1, 0)
+                + down % (self.uid('lit'), 0, look['lit'][0], .5, look['lit'][1]))
+
+    def knob(self, name, x, y, color):
+        """An encoder on two columns: a dish in the panel, a collar, a colored top."""
+        v = self.var
+        edge = ' stroke="%s" stroke-width="1"' % v('key-edge') if self.look.get('light') else ''
+        self.add('<g id="%s"><circle cx="%d" cy="%d" r="30" fill="%s" stroke="%s" stroke-width="1.4"/>'
+                 '<circle cx="%d" cy="%d" r="30" fill="url(#%s)"/>'
+                 '<circle cx="%d" cy="%d" r="18.5" fill="%s"%s/>'
+                 '<circle cx="%d" cy="%d" r="14.5" fill="var(--dw-%s, %s)"/>%s</g>'
+                 % (name, x, y, v('dish'), v('dish-edge'), x, y, self.uid('dip'), x, y, v('collar'), edge,
+                    x, y, name, color, self.shine(x, y, 14.5)))
+        self.part(name, x, y, 60, 60, 'circle')
+
     def frame(self):
         look, v = self.look, self.var
         self.add('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" role="img" '
                  'aria-label="The %s, seen from above" font-family="Helvetica Neue, Helvetica, Arial, '
                  'sans-serif" text-anchor="middle">' % (W, H, look['title']))
-        self.add('<defs><pattern id="%s-grille" width="6" height="6" patternUnits="userSpaceOnUse">'
-                 '<circle cx="3" cy="3" r="1.5" fill="%s"/></pattern></defs>' % (look['name'], v('dim')))
+        gx, gy = X0 + CELL, Y0 + CELL
+        self.add('<defs><pattern id="%s" x="%d" y="%d" width="5.5" height="5.5" patternUnits="userSpaceOnUse">'
+                 '<circle cx="2.75" cy="2.75" r="1.7" fill="%s"/></pattern>%s</defs>'
+                 % (self.uid('grille'), gx - 44, gy - 44, v('hole'), self.gradients()))
         # The power switch stands out of the right edge, level with the line between the bottom rows.
-        px, py = BX + BW - 4, Y0 + 5 * CELL - 17
-        self.add('<rect id="power" x="%d" y="%d" width="14" height="34" rx="4" fill="%s" stroke="%s" '
-                 'stroke-width="1.5"/>' % (px, py, v('switch'), v('edge')))
-        self.part('power', px + 7, py + 17, 14, 34, 'rect')
-        self.add('<rect x="%d" y="%d" width="%d" height="%d" rx="13" fill="%s" stroke="%s" stroke-width="2"/>'
-                 % (BX, BY, BW, BH, v('body'), v('edge')))
-        # The USB port is in the right side, behind the mark on the strip.
-        ux, uy = BX + BW - 8, Y0 + 3.3 * CELL - 15
-        self.add('<rect id="usb" x="%d" y="%s" width="6" height="30" rx="3" fill="%s"/>'
-                 % (ux, num(uy), v('edge')))
-        self.part('usb', ux + 3, uy + 15, 6, 30, 'rect')
-        self.add('<path d="M%s %sh30M%s %sv24" fill="none" stroke="%s" stroke-width="1"/>'
-                 '<path d="M%s %sv44" fill="none" stroke="%s" stroke-width="1.6" stroke-dasharray="1.2 2.4"/>'
-                 % (num(SX - 15), num(uy + 15), num(SX), num(uy - 18), v('mark'), num(SX), num(uy + 8), v('mark')))
+        px, py = BX + BW - 4, Y0 + 5 * CELL - 16
+        self.add('<rect id="power" x="%d" y="%d" width="11" height="32" rx="2.5" fill="%s" stroke="%s" '
+                 'stroke-width="1"/>' % (px, py, v('switch'), v('edge')))
+        self.part('power', px + 5.5, py + 16, 11, 32, 'rect')
+        self.add('<rect x="%d" y="%d" width="%d" height="%d" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'
+                 '<rect x="%d" y="%d" width="%d" height="%d" rx="9" fill="url(#%s)"/>'
+                 '<rect x="%s" y="%s" width="%d" height="%d" rx="8.5" fill="none" stroke="#fff" '
+                 'stroke-opacity="%s"/>'
+                 % (BX, BY, BW, BH, v('body'), v('edge'), BX + 1, BY + 1, BW - 2, BH - 2, self.uid('lit'),
+                    BX + 1.5, BY + 1.5, BW - 3, BH - 3, look['rim']))
+        # The USB port is in the right side, behind the mark on the strip: beside the third row.
+        my = Y0 + 2.27 * CELL
+        ux = BX + BW - 7
+        self.add('<rect id="usb" x="%d" y="%s" width="5" height="26" rx="2.5" fill="%s"/>'
+                 % (ux, num(my - 13), v('edge')))
+        self.part('usb', ux + 2.5, my, 5, 26, 'rect')
+        self.add('<path d="M%s %sh27" fill="none" stroke="%s" stroke-width=".7"/>'
+                 '<path d="M%s %sv%s" fill="none" stroke="%s" stroke-width="2.2" stroke-dasharray=".8 1.1" '
+                 'stroke-opacity=".8"/>'
+                 % (num(SX - 13.5), num(my), v('mark'), num(SX), num(Y0 + 1.94 * CELL), num(1.15 * CELL), v('mark')))
+        if look.get('tick'):
+            # The line on the front rim, under the middle of the keys.
+            self.add('<rect x="%s" y="%d" width="2.4" height="%d" fill="%s"/>'
+                     % (num(X0 + 9 * CELL - 1.2), GY1 + 3, BY + BH - GY1 - 4, v('ink')))
         self.bed()
         # Speaker, screen, microphone.
-        self.add('<circle cx="%d" cy="%d" r="40" fill="url(#%s-grille)"/>' % (X0 + CELL, Y0 + CELL, look['name']))
+        if look['grille'] == 'octagon':
+            side, c = 38.5, 24.75
+            self.add('<path d="M%s %dh%sl%s %sv%sl-%s %sh-%sl-%s-%sv-%sz" fill="url(#%s)"/>'
+                     % (num(gx - 44 + c), gy - 44, side, c, c, side, c, c, side, c, c, side, self.uid('grille')))
+        else:
+            self.add('<circle cx="%d" cy="%d" r="40" fill="url(#%s)"/>' % (gx, gy, self.uid('grille')))
         sx, sy, sw, sh = X0 + 4 * CELL + 1, Y0 + 1, 4 * CELL - 2, 2 * CELL - 2
         self.add('<rect id="screen" x="%d" y="%d" width="%d" height="%d" rx="3" fill="%s"/>'
-                 % (sx, sy, sw, sh, v('screen')))
+                 '<rect x="%d" y="%d" width="%d" height="%d" rx="1" fill="%s"/>'
+                 '<rect x="%d" y="%d" width="%d" height="%d" rx="3" fill="url(#%s)"/>'
+                 '<path d="M%s %dh%sl-%s %dh-%sz" fill="#fff" fill-opacity=".035"/>'
+                 % (sx, sy, sw, sh, v('glass'), sx + 10, sy + 9, sw - 20, sh - 18, v('screen'),
+                    sx, sy, sw, sh, self.uid('glass'),
+                    num(sx + sw * .62), sy, num(sw * .16), num(sh * .55), sh, num(sw * .16)))
         self.part('screen', sx + sw / 2, sy + sh / 2, sw, sh, 'rect')
-        self.add('<circle cx="%s" cy="%s" r="2" fill="%s"/>' % (num(SX), num(cy(1)), v('edge')))
-        # The four knobs, each on two columns: a ring in the panel, a cap, a colored top.
+        self.add('<circle cx="%s" cy="%s" r="1.6" fill="%s"/>' % (num(SX), num(cy(1)), v('edge')))
         for i, color in enumerate(look['knobs']):
-            x, y = X0 + (9 + 2 * i) * CELL, Y0 + CELL
-            name = 'knob-%d' % (i + 1)
-            self.add('<g id="%s"><circle cx="%d" cy="%d" r="34" fill="none" stroke="%s" stroke-width="1.2"/>'
-                     '%s<circle cx="%d" cy="%d" r="13" fill="var(--dw-%s, %s)"/></g>'
-                     % (name, x, y, v('key-edge'), self.disc(x, y, 22, v('ring')), x, y, name, color))
-            self.part(name, x, y, 68, 68, 'circle')
+            self.knob('knob-%d' % (i + 1), X0 + (9 + 2 * i) * CELL, Y0 + CELL, color)
+        # The volume knob: a collar and a top with its mark.
+        x, y = cx(3), cy(1)
+        light = look.get('light')
+        self.add('<g id="volume"><circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/>'
+                 '<circle cx="%s" cy="%s" r="12.5" fill="%s"/><circle cx="%s" cy="%s" r="10.5" fill="%s"/>%s'
+                 '<circle cx="%s" cy="%s" r="1.8" fill="none" stroke="%s"/></g>'
+                 % (num(x), num(y), num(12.5 / .7), self.uid('well'), num(x), num(y),
+                    v('key-edge') if light else v('collar'), num(x), num(y), v('volume'), self.shine(x, y, 10.5),
+                    num(x - 4), num(y - 4), v('mark') if light else '#f4f4f2'))
 
-    def keyboard_side(self):
+    def keyboard_side(self, stop='stop'):
         self.key('key-rec', 1, 5, 'rec', color='accent')
         self.key('key-play', 2, 5, 'play')
-        self.key('key-stop', 3, 5, 'stop')
+        self.key('key-stop', 3, 5, stop)
         self.key('key-shift', 3, 6, label='shift', size=11, weight=400)
 
     def finish(self):
@@ -354,55 +428,53 @@ def op_xy():
     d = Drawing(XY)
     d.frame()
     v = d.var
-    x, y = cx(3), cy(1)
-    d.add('<g id="volume">%s<circle cx="%s" cy="%s" r="1.8" fill="%s"/></g>'
-          % (d.disc(x, y, 17, v('key')), num(x + 4), num(y - 7), v('ink')))
-    d.key('key-project', 3, 2, 'pen')
+    d.key('key-project', 3, 2, 'nib')
     d.key('key-tempo', 4, 2, 'metro')
     d.key('key-sample', 17, 1, 'sample')
     d.key('key-com', 17, 2, label='com', size=12.5, weight=300)
-    d.key('key-instrument', 1, 3, 'arch', sub='1–8')
+    d.key('key-instrument', 1, 3, 'sine', sub='1–8')
     d.key('key-aux', 2, 3, 'plug', sub='1–8')
     d.key('key-arrange', 3, 3, 'blocks')
     d.key('key-mix', 4, 3, 'faders')
     for i in range(1, 5):
-        d.key('key-m%d' % i, 4 + i, 3, label=str(i), size=20, weight=300)
+        d.key('key-m%d' % i, 4 + i, 3, label=str(i), size=19, weight=300)
     for i, side in enumerate(('blob', 'dome', 'dial', 'cv', 'kit', 'tape-s', 'fx1', 'fx2'), 1):
-        d.key('key-sound-%d' % i, 8 + i, 3, label=str(i), size=14, weight=300, led=True, side=side)
+        d.key('key-sound-%d' % i, 8 + i, 3, label=str(i), size=13, weight=300, led=True, side=side)
     d.key('key-players', 17, 3, 'pixels')
     # The sixteen step keys run from dark to light two at a time, tile and cap alike.
     for col in range(1, 17):
         color = mix(XY['steps'][0], XY['steps'][1], ((col - 1) // 2) / 7)
         x, y, name = cx(col), cy(4), 'key-step-%d' % col
-        d.add('<g id="%s"><rect x="%s" y="%s" width="%d" height="%d" rx="3" fill="%s"/>'
-              '<circle cx="%s" cy="%s" r="19" fill="#000" fill-opacity=".3"/>'
-              '<circle cx="%s" cy="%s" r="19" fill="%s" stroke="#fff" stroke-opacity=".18" stroke-width="1.2"/>'
-              '<circle cx="%s" cy="%s" r="2.2" fill="%s"/></g>'
+        d.add('<g id="%s"><rect x="%s" y="%s" width="%d" height="%d" rx="2.5" fill="%s"/>'
+              '<circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/><circle cx="%s" cy="%s" r="%s" fill="%s"/>%s'
+              '<circle cx="%s" cy="%s" r="2" fill="#000" fill-opacity=".62"/></g>'
               % (name, num(x - CELL / 2 + 1), num(y - CELL / 2 + 1), CELL - 2, CELL - 2, color,
-                 num(x), num(y + 2.5), num(x), num(y), color, num(x), num(y - 11), v('line')))
-        d.part(name, x, y, 38, 38, 'circle')
+                 num(x), num(y), num(R / .7), d.uid('step'), num(x), num(y), R, color, d.shine(x, y, R),
+                 num(x), num(y - 11.5)))
+        d.part(name, x, y, 2 * R, 2 * R, 'circle')
     x, y = cx(17), cy(4)
-    d.add('<g id="key-bar">%s%s<rect x="%s" y="%s" width="24" height="11" rx="1.5" fill="%s"/>'
-          '<text x="%s" y="%s" font-size="8.5" font-weight="600" fill="%s">BAR</text></g>'
-          % (d.disc(x, y, 19, v('key')), d.text('1–4', x, y - 8, 7, weight=400), num(x - 12), num(y - 2),
-             v('ink'), num(x), num(y + 6.5), v('key')))
-    d.part('key-bar', x, y, 38, 38, 'circle')
-    d.keyboard_side()
+    d.add('<g id="key-bar">%s%s<rect x="%s" y="%s" width="21" height="9.5" rx="1.5" fill="%s"/>'
+          '<text x="%s" y="%s" font-size="7.5" font-weight="500" fill="%s">BAR</text></g>'
+          % (d.disc(x, y, R, v('key')), d.text('1–4', x, y - 7.5, 6, weight=500), num(x - 10.5), num(y - 2.5),
+             v('ink'), num(x), num(y + 5), v('key')))
+    d.part('key-bar', x, y, 2 * R, 2 * R, 'circle')
+    d.keyboard_side('hatch')
     d.key('key-minus', 1, 6, 'minus')
     d.key('key-plus', 2, 6, 'plus')
-    d.add(d.text('num', X0 + 3 * CELL + 14, cy(5) - 15, 9, weight=400))
+    d.add(d.text('num', X0 + 3 * CELL + 13, cy(5) - 16, 9, weight=400))
     for n, col in enumerate(BLACK):
-        d.key('key-num-%d' % ((n + 1) % 10), col, 5, label=str((n + 1) % 10), size=14, weight=300,
+        d.key('key-num-%d' % ((n + 1) % 10), col, 5, label=str((n + 1) % 10), size=13, weight=300,
               x=X0 + col * CELL, led=True)
     marks = ('four', 'hand', 'divide', 'ramp', 'stairs-up', 'stairs-down', '', 'notes', 'fin', 'clover',
              'into', 'wheel', 'burst', 'sun')
     for col, mark in enumerate(marks, 4):
         d.key('key-note-%d' % (col - 3), col, 6, mark, led=True,
-              label='' if mark else '<tspan font-style="italic">rnd</tspan>', size=12, weight=400)
-    d.add('<text transform="translate(%s %s) rotate(-90)" font-size="25" font-weight="300" fill="%s">XY</text>'
-          % (num(SX + 8), num(cy(5) + 22), v('ink')))
-    d.add('<g transform="translate(%s %s) rotate(-90)"><rect x="-10" y="-6.500" width="20" height="13" rx="2" '
-          'fill="none" stroke="%s"/>%s</g>' % (num(SX), num(cy(6) + 12), v('mark'), d.text('OP', 0, 0, 8, 'mark')))
+              label='' if mark else '<tspan font-style="italic">rnd</tspan>', size=11.5, weight=400)
+    d.add('<text transform="translate(%s %s) rotate(-90)" font-size="19" font-weight="300" letter-spacing="2" '
+          'fill="%s">XY</text>' % (num(SX + 6.5), num(Y0 + 5.1 * CELL), v('mark')))
+    d.add('<g transform="translate(%s %s) rotate(-90)"><rect x="-9" y="-7" width="18" height="14" rx="1" '
+          'fill="none" stroke="%s" stroke-width=".8"/>%s</g>'
+          % (num(SX), num(Y0 + 5.66 * CELL), v('mark'), d.text('OP', 0, 0, 8, 'mark', 400)))
     return d
 
 
@@ -410,13 +482,11 @@ def op_1_field():
     d = Drawing(FIELD)
     d.frame()
     v = d.var
-    # The volume knob and the recess beside it share one tile.
-    x, y = cx(3), cy(1)
-    d.add('<g id="volume">%s<circle cx="%s" cy="%s" r="1.8" fill="%s"/></g>'
-          % (d.disc(x, y, 17, v('key')), num(x + 4), num(y - 7), v('ink')))
+    # The recess beside the volume knob shares its tile.
+    y = cy(1)
     d.add('<rect x="%s" y="%s" width="36" height="36" rx="8" fill="%s" stroke="%s" stroke-width="1.2"/>'
           '<rect x="%s" y="%s" width="26" height="26" rx="5" fill="%s" stroke="%s" stroke-width="1"/>'
-          % (num(cx(4) - 18), num(y - 18), v('tile'), v('shade'), num(cx(4) - 13), num(y - 13), v('key'),
+          % (num(cx(4) - 18), num(y - 18), v('tile'), v('well'), num(cx(4) - 13), num(y - 13), v('key'),
              v('key-edge')))
     d.key('key-help', 3, 2, 'help')
     d.key('key-tempo', 4, 2, 'tempo')
@@ -425,9 +495,9 @@ def op_1_field():
     for col, mark in enumerate(('synth', 'pad', 'tape', 'bars'), 1):
         d.key('key-mode-%d' % col, col, 3, mark)
     for i in range(1, 5):
-        d.key('key-t%d' % i, 4 + i, 3, label=str(i), size=25, weight=200)
+        d.key('key-t%d' % i, 4 + i, 3, label=str(i), size=23, weight=200)
     for i, sub in enumerate(('IN', 'OUT', 'loop-s', 'tape-s', 'Я', '••••', 'M1', 'M2'), 1):
-        d.key('key-%d' % i, 8 + i, 3, label=str(i), size=14, weight=300, sub=sub)
+        d.key('key-%d' % i, 8 + i, 3, label=str(i), size=13, weight=300, sub=sub)
     d.key('key-sequencer', 17, 3, 'dots')
     d.key('key-lift', 1, 4, 'up')
     d.key('key-drop', 2, 4, 'down')
@@ -436,14 +506,21 @@ def op_1_field():
     d.key('key-left', 1, 6, 'left')
     d.key('key-right', 2, 6, 'right')
     # White keys are raised pills down the two bottom rows; the black keys are round, above them.
+    pill = '<rect x="%s" y="%s" width="%s" height="%s" rx="%s" fill="%s"%s/>'
     for col in range(4, 18):
-        x, y = cx(col) - 18, Y0 + 4 * CELL + 7
-        d.add('<g id="key-note-%d"><rect x="%s" y="%s" width="36" height="91" rx="18" fill="%s"/>'
-              '<rect x="%s" y="%s" width="36" height="91" rx="18" fill="%s" stroke="%s" stroke-width="1.2"/></g>'
-              % (col - 3, num(x), num(y + 2.5), v('shade'), num(x), num(y), v('key'), v('key-edge')))
+        x, y, w, h = cx(col) - R, Y0 + 4 * CELL + 9, 2 * R, 2 * CELL - 18
+        d.add('<g id="key-note-%d">%s%s%s%s</g>' % (
+            col - 3,
+            pill % (num(x - 4.5), num(y - 4.5), num(w + 9), num(h + 9), R + 4.5, v('well'), ' fill-opacity=".3"'),
+            pill % (num(x - 2), num(y - 2), num(w + 4), num(h + 4), R + 2, v('well'), ' fill-opacity=".6"'),
+            pill % (num(x), num(y), num(w), num(h), R, v('key'), ' stroke="%s" stroke-width="1"' % v('key-edge')),
+            pill % (num(x), num(y), num(w), num(h), R, 'url(#%s)' % d.uid('sheen'), '')))
     for col in BLACK:
-        d.add(d.disc(X0 + col * CELL, cy(4), 19, v('key')))
-        d.add('<circle cx="%d" cy="%s" r="16" fill="%s"/>' % (X0 + col * CELL, num(cy(4)), v('black-key')))
+        x, y = X0 + col * CELL, cy(4)
+        d.add('<circle cx="%d" cy="%s" r="%s" fill="url(#%s)"/><circle cx="%d" cy="%s" r="%s" fill="%s"/>'
+              '<circle cx="%d" cy="%s" r="%s" fill="url(#%s)" fill-opacity=".25"/>'
+              % (x, num(y), num(R / .7), d.uid('well'), x, num(y), R, v('black-key'), x, num(y), R,
+                 d.uid('sheen')))
     d.add('<text transform="translate(%s %s) rotate(-90)" font-size="24" font-weight="300" fill="%s">OP–1</text>'
           % (num(SX + 8), num(cy(5) + 18), v('ink')))
     d.add('<g><rect x="%s" y="%s" width="28" height="12" rx="2.5" fill="none" stroke="%s"/>%s</g>'
