@@ -518,12 +518,15 @@ function startOver() {
 
 // The two things to do with a unit, drawn as keys: a line glyph, a name, and what it does.
 const GLYPH = {
-	install: '<path d="M16 4v15M9.5 12.5 16 19l6.5-6.5"/><path d="M5 20v6h22v-6"/>',
-	dev: '<rect x="3" y="10" width="26" height="12" rx="6"/><circle cx="23" cy="16" r="3.5"/>',
+	// A chip with an arrow going into it: writing the bootloader onto the unit.
+	install: '<rect x="7" y="7" width="18" height="18" rx="3"/><path d="M12.5 3v4M19.5 3v4M12.5 25v4M19.5 25v4' +
+		'M3 12.5h4M3 19.5h4M25 12.5h4M25 19.5h4"/><path d="M16 10.5v10M12 16.5l4 4 4-4"/>',
+	// Code brackets: the unit's developer features.
+	dev: '<path d="M10.5 9 3.5 16l7 7M21.5 9l7 7-7 7M18.5 6l-5 20"/>',
 };
 function choice(kind, title, text, onclick) {
 	const glyph = h('span.glyph');
-	glyph.innerHTML = '<svg viewBox="0 0 32 32" width="32" height="32" aria-hidden="true">' + GLYPH[kind] + '</svg>';
+	glyph.innerHTML = '<svg viewBox="0 0 32 32" width="36" height="36" aria-hidden="true">' + GLYPH[kind] + '</svg>';
 	return h('button.choice.' + kind, { type: 'button', onclick, disabled: !onclick, 'aria-labelledby': 'choice-' + kind,
 		'aria-describedby': 'choice-' + kind + '-what' }, glyph,
 		h('span.name', { id: 'choice-' + kind }, title), h('span.what', { id: 'choice-' + kind + '-what' }, text));
