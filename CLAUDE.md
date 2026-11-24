@@ -13,10 +13,17 @@ what lands on `main` is live.
 
 ## What goes in a change
 
-- One pull request per finished piece of work.
+- Work on a `dev/<topic>` branch cut from `main`, in a worktree under `.wt/`; never commit directly on
+  `main`. Merge back locally with a merge commit, `Merge dev/<topic>: <what it brings>`, then remove the
+  worktree and the branch.
+- One finished piece of work per commit, with `npm run check` passing first.
+- Commit subjects are `area: what changed`, lower case, about the behavior and not the process
+  (`page:`, `release:`, `readme:`, `tools:`). No trailers or attribution lines.
 - US English. Short comments that explain the code; no dates, names or history in them.
-- Commit messages start with the area (`page:`, `release:`, `tools:`, `docs:`) and say what and why.
+- Every commit is by the project identity, made with `TZ=UTC`.
 - No personal names, email addresses, home paths or host names in files or commit messages.
-  `tools/leak-check.py` checks every commit (`tools/leak-check-install.sh` sets it up). Do not skip the
-  hooks.
+  `tools/leak-check.py` checks every commit and push. Never skip the hooks.
+- Everything pushed is public, and `main` is the live page. Ask before each push, push once when the
+  whole job is done, and never rewrite or force-push what is pushed.
+- GitHub Actions is off: the checks run locally.
 - The unit's serial number is never shown or logged by the page.
