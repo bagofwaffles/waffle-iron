@@ -1,9 +1,7 @@
 # Waffle Iron
 
-Tools for the Teenage Engineering OP-XY and OP-1 Field from the
-[bag of waffles](https://github.com/bagofwaffles?tab=repositories) projects. The first is a page that installs
-[waffle-boot](https://github.com/bagofwaffles/waffle-boot) or turns a unit's developer mode on or off,
-from the browser.
+Tools for the Teenage Engineering OP-XY and OP-1 Field for the
+[bag of waffles](https://github.com/bagofwaffles?tab=repositories) projects.
 
 **Use it here: https://bagofwaffles.github.io/waffle-iron/**
 
