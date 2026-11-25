@@ -35,17 +35,16 @@ XY = {
     'accent': '#e2412b', 'knobs': ('#3b3d42', '#7b7f87', '#b9bbbd', '#f3f3f0'), 'collar': '#0c0c0d',
     'dish': '#222325', 'dish-edge': '#0b0b0c', 'volume': '#b4b6b8', 'switch': '#d9d9d5', 'tile': '#27282a',
     'well': '#0a0a0b', 'hole': '#050506', 'mark': '#8d8f93', 'steps': ('#4b4f56', '#dcdbd6'),
-    'well-depth': .95, 'dip': .3, 'sheen': .09, 'lit': (.05, .12), 'rim': .07, 'grille': 'octagon', 'tick': True,
+    'ring': 3.2, 'grille': 'octagon', 'tick': True,
 }
 FIELD = {
     'name': 'op-1-field', 'title': 'OP-1 Field',
-    'body': '#dbdbd8', 'edge': '#a6a6a2', 'line': '#1b1b1c', 'key': '#f8f7f3', 'key-edge': '#d3cfc7',
+    'body': '#cfcfcc', 'edge': '#9a9a96', 'line': '#1b1b1c', 'key': '#f2f0eb', 'key-edge': '#cbc7bf',
     'ink': '#454543', 'screen': '#0b0b0c', 'glass': '#1a1b1d', 'black-key': '#151516',
-    'accent': '#e2562b', 'knobs': ('#2b3563', '#b59a62', '#909293', '#e2562b'), 'collar': '#f8f7f3',
-    'dish': '#e6e4de', 'dish-edge': '#cdc9c1', 'volume': '#f8f7f3', 'switch': '#c9c9c5', 'tile': '#eeece7',
-    'well': '#c6c2b9', 'hole': '#2a2a29', 'mark': '#3b3b3a',
-    'well-depth': .6, 'dip': .06, 'sheen': .6, 'lit': (.35, .02), 'rim': .6, 'grille': 'round',
-    'light': True, 'stroke': 1.2, 'sub-weight': 500,
+    'accent': '#e2562b', 'knobs': ('#2b3563', '#b59a62', '#909293', '#e2562b'), 'collar': '#f2f0eb',
+    'dish': '#dcd9d2', 'dish-edge': '#bdb9b0', 'volume': '#f2f0eb', 'switch': '#bdbdb9', 'tile': '#e6e3dd',
+    'well': '#bab6ad', 'hole': '#2a2a29', 'mark': '#3b3b3a',
+    'ring': 2.2, 'grille': 'round', 'light': True, 'stroke': 1.2, 'sub-weight': 500,
 }
 R = 16.5                            # a key's cap
 
@@ -250,15 +249,12 @@ class Drawing:
     def uid(self, what):
         return '%s-%s' % (self.look['name'], what)
 
-    def shine(self, x, y, r):
-        return '<circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/>' % (num(x), num(y), num(r), self.uid('sheen'))
-
     def disc(self, x, y, r, fill):
-        """A round cap in the soft dish it sits in."""
+        """A round cap, in the dark ring of the well it sits in."""
         edge = ' stroke="%s" stroke-width="1"' % self.var('key-edge') if self.look.get('light') else ''
-        return ('<circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/><circle cx="%s" cy="%s" r="%s" fill="%s"%s/>%s'
-                % (num(x), num(y), num(r / .7), self.uid('well'), num(x), num(y), num(r), fill, edge,
-                   self.shine(x, y, r)))
+        return ('<circle cx="%s" cy="%s" r="%s" fill="%s"/><circle cx="%s" cy="%s" r="%s" fill="%s"%s/>'
+                % (num(x), num(y), num(r + self.look['ring']), self.var('well'), num(x), num(y), num(r), fill,
+                   edge))
 
     def key(self, name, col, row, mark='', label='', size=13, r=R, x=None, color='ink', weight=500,
             sub='', led=False, side=''):
@@ -313,34 +309,14 @@ class Drawing:
         self.add('<path d="%s" fill="%s" stroke="%s" stroke-width="3" stroke-linejoin="round"/>'
                  % (d, v('tile'), v('tile')))
 
-    def gradients(self):
-        look, v = self.look, self.var
-        deep = look['well-depth']
-        fade = ('<radialGradient id="%s"><stop offset=".66" stop-color="%s" stop-opacity="%s"/>'
-                '<stop offset=".8" stop-color="%s" stop-opacity="%s"/>'
-                '<stop offset="1" stop-color="%s" stop-opacity="0"/></radialGradient>')
-        down = ('<linearGradient id="%s" x2="%s" y2="1"><stop stop-color="#fff" stop-opacity="%s"/>'
-                '<stop offset="%s" stop-color="#fff" stop-opacity="0"/>'
-                '<stop offset="1" stop-color="#000" stop-opacity="%s"/></linearGradient>')
-        return (fade % (self.uid('well'), v('well'), deep, v('well'), num(deep * .7), v('well'))
-                + fade % (self.uid('step'), '#000', .4, '#000', .24, '#000')
-                + '<radialGradient id="%s"><stop offset=".55" stop-color="#000" stop-opacity="%s"/>'
-                  '<stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>'
-                % (self.uid('dip'), look['dip'])
-                + down % (self.uid('sheen'), 0, look['sheen'], .7, .06)
-                + down % (self.uid('glass'), 1, .08, 1, 0)
-                + down % (self.uid('lit'), 0, look['lit'][0], .5, look['lit'][1]))
-
     def knob(self, name, x, y, color):
         """An encoder on two columns: a dish in the panel, a collar, a colored top."""
         v = self.var
         edge = ' stroke="%s" stroke-width="1"' % v('key-edge') if self.look.get('light') else ''
         self.add('<g id="%s"><circle cx="%d" cy="%d" r="30" fill="%s" stroke="%s" stroke-width="1.4"/>'
-                 '<circle cx="%d" cy="%d" r="30" fill="url(#%s)"/>'
                  '<circle cx="%d" cy="%d" r="18.5" fill="%s"%s/>'
-                 '<circle cx="%d" cy="%d" r="14.5" fill="var(--dw-%s, %s)"/>%s</g>'
-                 % (name, x, y, v('dish'), v('dish-edge'), x, y, self.uid('dip'), x, y, v('collar'), edge,
-                    x, y, name, color, self.shine(x, y, 14.5)))
+                 '<circle cx="%d" cy="%d" r="14.5" fill="var(--dw-%s, %s)"/></g>'
+                 % (name, x, y, v('dish'), v('dish-edge'), x, y, v('collar'), edge, x, y, name, color))
         self.part(name, x, y, 60, 60, 'circle')
 
     def frame(self):
@@ -350,19 +326,15 @@ class Drawing:
                  'sans-serif" text-anchor="middle">' % (W, H, look['title']))
         gx, gy = X0 + CELL, Y0 + CELL
         self.add('<defs><pattern id="%s" x="%d" y="%d" width="5.5" height="5.5" patternUnits="userSpaceOnUse">'
-                 '<circle cx="2.75" cy="2.75" r="1.7" fill="%s"/></pattern>%s</defs>'
-                 % (self.uid('grille'), gx - 44, gy - 44, v('hole'), self.gradients()))
+                 '<circle cx="2.75" cy="2.75" r="1.7" fill="%s"/></pattern></defs>'
+                 % (self.uid('grille'), gx - 44, gy - 44, v('hole')))
         # The power switch stands out of the right edge, level with the line between the bottom rows.
         px, py = BX + BW - 4, Y0 + 5 * CELL - 16
         self.add('<rect id="power" x="%d" y="%d" width="11" height="32" rx="2.5" fill="%s" stroke="%s" '
                  'stroke-width="1"/>' % (px, py, v('switch'), v('edge')))
         self.part('power', px + 5.5, py + 16, 11, 32, 'rect')
         self.add('<rect x="%d" y="%d" width="%d" height="%d" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'
-                 '<rect x="%d" y="%d" width="%d" height="%d" rx="9" fill="url(#%s)"/>'
-                 '<rect x="%s" y="%s" width="%d" height="%d" rx="8.5" fill="none" stroke="#fff" '
-                 'stroke-opacity="%s"/>'
-                 % (BX, BY, BW, BH, v('body'), v('edge'), BX + 1, BY + 1, BW - 2, BH - 2, self.uid('lit'),
-                    BX + 1.5, BY + 1.5, BW - 3, BH - 3, look['rim']))
+                 % (BX, BY, BW, BH, v('body'), v('edge')))
         # The USB port is in the right side, behind the mark on the strip: beside the third row.
         my = Y0 + 2.27 * CELL
         ux = BX + BW - 7
@@ -388,11 +360,7 @@ class Drawing:
         sx, sy, sw, sh = X0 + 4 * CELL + 1, Y0 + 1, 4 * CELL - 2, 2 * CELL - 2
         self.add('<rect id="screen" x="%d" y="%d" width="%d" height="%d" rx="3" fill="%s"/>'
                  '<rect x="%d" y="%d" width="%d" height="%d" rx="1" fill="%s"/>'
-                 '<rect x="%d" y="%d" width="%d" height="%d" rx="3" fill="url(#%s)"/>'
-                 '<path d="M%s %dh%sl-%s %dh-%sz" fill="#fff" fill-opacity=".035"/>'
-                 % (sx, sy, sw, sh, v('glass'), sx + 10, sy + 9, sw - 20, sh - 18, v('screen'),
-                    sx, sy, sw, sh, self.uid('glass'),
-                    num(sx + sw * .62), sy, num(sw * .16), num(sh * .55), sh, num(sw * .16)))
+                 % (sx, sy, sw, sh, v('glass'), sx + 10, sy + 9, sw - 20, sh - 18, v('screen')))
         self.part('screen', sx + sw / 2, sy + sh / 2, sw, sh, 'rect')
         self.add('<circle cx="%s" cy="%s" r="1.6" fill="%s"/>' % (num(SX), num(cy(1)), v('edge')))
         for i, color in enumerate(look['knobs']):
@@ -400,11 +368,9 @@ class Drawing:
         # The volume knob: a collar and a top with its mark.
         x, y = cx(3), cy(1)
         light = look.get('light')
-        self.add('<g id="volume"><circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/>'
-                 '<circle cx="%s" cy="%s" r="12.5" fill="%s"/><circle cx="%s" cy="%s" r="10.5" fill="%s"/>%s'
+        self.add('<g id="volume">%s<circle cx="%s" cy="%s" r="10.5" fill="%s"/>'
                  '<circle cx="%s" cy="%s" r="1.8" fill="none" stroke="%s"/></g>'
-                 % (num(x), num(y), num(12.5 / .7), self.uid('well'), num(x), num(y),
-                    v('key-edge') if light else v('collar'), num(x), num(y), v('volume'), self.shine(x, y, 10.5),
+                 % (self.disc(x, y, 12.5, v('key-edge') if light else v('collar')), num(x), num(y), v('volume'),
                     num(x - 4), num(y - 4), v('mark') if light else '#f4f4f2'))
 
     def keyboard_side(self, stop='stop'):
@@ -446,11 +412,11 @@ def op_xy():
         color = mix(XY['steps'][0], XY['steps'][1], ((col - 1) // 2) / 7)
         x, y, name = cx(col), cy(4), 'key-step-%d' % col
         d.add('<g id="%s"><rect x="%s" y="%s" width="%d" height="%d" rx="2.5" fill="%s"/>'
-              '<circle cx="%s" cy="%s" r="%s" fill="url(#%s)"/><circle cx="%s" cy="%s" r="%s" fill="%s"/>%s'
+              '<circle cx="%s" cy="%s" r="%s" fill="#000" fill-opacity=".28"/>'
+              '<circle cx="%s" cy="%s" r="%s" fill="%s"/>'
               '<circle cx="%s" cy="%s" r="2" fill="#000" fill-opacity=".62"/></g>'
               % (name, num(x - CELL / 2 + 1), num(y - CELL / 2 + 1), CELL - 2, CELL - 2, color,
-                 num(x), num(y), num(R / .7), d.uid('step'), num(x), num(y), R, color, d.shine(x, y, R),
-                 num(x), num(y - 11.5)))
+                 num(x), num(y), num(R + XY['ring']), num(x), num(y), R, color, num(x), num(y - 11.5)))
         d.part(name, x, y, 2 * R, 2 * R, 'circle')
     x, y = cx(17), cy(4)
     d.add('<g id="key-bar">%s%s<rect x="%s" y="%s" width="21" height="9.5" rx="1.5" fill="%s"/>'
@@ -507,20 +473,15 @@ def op_1_field():
     d.key('key-right', 2, 6, 'right')
     # White keys are raised pills down the two bottom rows; the black keys are round, above them.
     pill = '<rect x="%s" y="%s" width="%s" height="%s" rx="%s" fill="%s"%s/>'
+    ring = FIELD['ring']
     for col in range(4, 18):
         x, y, w, h = cx(col) - R, Y0 + 4 * CELL + 9, 2 * R, 2 * CELL - 18
-        d.add('<g id="key-note-%d">%s%s%s%s</g>' % (
+        d.add('<g id="key-note-%d">%s%s</g>' % (
             col - 3,
-            pill % (num(x - 4.5), num(y - 4.5), num(w + 9), num(h + 9), R + 4.5, v('well'), ' fill-opacity=".3"'),
-            pill % (num(x - 2), num(y - 2), num(w + 4), num(h + 4), R + 2, v('well'), ' fill-opacity=".6"'),
-            pill % (num(x), num(y), num(w), num(h), R, v('key'), ' stroke="%s" stroke-width="1"' % v('key-edge')),
-            pill % (num(x), num(y), num(w), num(h), R, 'url(#%s)' % d.uid('sheen'), '')))
+            pill % (num(x - ring), num(y - ring), num(w + 2 * ring), num(h + 2 * ring), num(R + ring), v('well'), ''),
+            pill % (num(x), num(y), num(w), num(h), R, v('key'), ' stroke="%s" stroke-width="1"' % v('key-edge'))))
     for col in BLACK:
-        x, y = X0 + col * CELL, cy(4)
-        d.add('<circle cx="%d" cy="%s" r="%s" fill="url(#%s)"/><circle cx="%d" cy="%s" r="%s" fill="%s"/>'
-              '<circle cx="%d" cy="%s" r="%s" fill="url(#%s)" fill-opacity=".25"/>'
-              % (x, num(y), num(R / .7), d.uid('well'), x, num(y), R, v('black-key'), x, num(y), R,
-                 d.uid('sheen')))
+        d.add(d.disc(X0 + col * CELL, cy(4), R, v('black-key')))
     d.add('<text transform="translate(%s %s) rotate(-90)" font-size="24" font-weight="300" fill="%s">OP–1</text>'
           % (num(SX + 8), num(cy(5) + 18), v('ink')))
     d.add('<g><rect x="%s" y="%s" width="28" height="12" rx="2.5" fill="none" stroke="%s"/>%s</g>'
