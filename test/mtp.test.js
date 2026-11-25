@@ -106,10 +106,10 @@ test('the unit is asked for by maker or by MTP class, and an empty list is expla
 test('a release is read, and a file is known by its SHA-256', () => {
 	const rel = parseRelease({ tag_name: 'v1', assets: [
 		{ name: 'waffle-install.ldr', size: 5, digest: 'sha256:aa', browser_download_url: 'u' },
-		{ name: 'waffle-install-1f.ldr', size: 6, digest: 'sha256:bb', browser_download_url: 'v' },
+		{ name: 'waffle-boot.ldr', size: 6, digest: 'sha256:bb', browser_download_url: 'v' },
 		{ name: 'SHA256SUMS', size: 1, browser_download_url: 'w' }] });
-	assert.deepEqual(identify(rel, 'aa'), { tag: 'v1', name: 'waffle-install.ldr', unit: 'op-xy' });
-	assert.equal(identify(rel, 'bb').unit, 'op-1-field');
+	assert.deepEqual(identify(rel, 'aa'), { tag: 'v1', name: 'waffle-install.ldr' });
+	assert.equal(identify(rel, 'bb').name, 'waffle-boot.ldr');
 	assert.equal(identify(rel, 'cc'), null);
 	assert.equal(identify(null, 'aa'), null);
 });

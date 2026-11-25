@@ -12,8 +12,8 @@ import { sha256Hex } from './mtp.js';
 
 export const REPO = 'bagofwaffles/waffle-boot';
 export const RELEASES = 'https://github.com/' + REPO + '/releases';
-// The installer for each unit, by its file name in a release.
-export const ASSET = { 'op-xy': 'waffle-install.ldr', 'op-1-field': 'waffle-install-1f.ldr' };
+// The installer's file name in a release: one installer serves the OP-XY and the OP-1 Field.
+export const INSTALLER = 'waffle-install.ldr';
 
 // { tag, assets: { name: { size, sha256, url } } } from GitHub's answer for a release.
 export function parseRelease(json) {
@@ -63,12 +63,12 @@ export async function publishedCopy(name, fetcher = fetch) {
 	return { tag: 'v' + info.version, bytes, sha256 };
 }
 
-// What a file is, by its SHA-256: { tag, name, unit } when it is one of the release's installers.
+// What a file is, by its SHA-256: { tag, name } when it is one of the release's files.
 export function identify(release, sha256) {
 	if (!release)
 		return null;
 	for (const [name, a] of Object.entries(release.assets))
 		if (a.sha256 && a.sha256 === sha256)
-			return { tag: release.tag, name, unit: Object.keys(ASSET).find((u) => ASSET[u] === name) || null };
+			return { tag: release.tag, name };
 	return null;
 }

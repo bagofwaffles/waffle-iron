@@ -30,7 +30,7 @@ test('the published installer is taken when latest.json names it and its SHA-256
 test('an installer the site does not publish is null, and a mismatched one is refused', async () => {
 	const files = { 'latest.json': { version: '0.9.52', file: 'waffle-install.ldr', sha256: sha },
 		'waffle-install.ldr': new Uint8Array([9]) };
-	assert.equal(await publishedCopy('waffle-install-1f.ldr', site(files)), null);
+	assert.equal(await publishedCopy('waffle-boot.ldr', site(files)), null);
 	await assert.rejects(publishedCopy('waffle-install.ldr', site(files)), /not the file its latest.json names/);
 	await assert.rejects(publishedCopy('waffle-install.ldr', site({})), /answered 404/);
 });

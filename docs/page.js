@@ -11,7 +11,7 @@
 import { parseCarrier, fsnRequest, devRequest, rebootToBootMenu, rebootToUpload, CMD, DEVICE } from './devmode.js';
 import { Mtp, putFile, openUnit, sha256Hex, mtpDate } from './mtp.js';
 import { FakeUnit } from './mtpfake.js';
-import { ASSET, RELEASES, latestRelease, commitOf, publishedCopy, identify } from './release.js';
+import { INSTALLER, RELEASES, latestRelease, commitOf, publishedCopy, identify } from './release.js';
 import { firmwareZip, versionLine } from './fwzip.js';
 
 const UNITS = {
@@ -318,7 +318,7 @@ async function setDev(on) {
 const count = (n) => n.toLocaleString('en-US');
 
 async function findInstaller() {
-	const name = ASSET[state.unit || 'op-xy'];
+	const name = INSTALLER;
 	state.inst = { looking: true };
 	render();
 	let rel = null, copy = null;
@@ -412,15 +412,14 @@ async function takeFile(file) {
 	}
 	const sha256 = await sha256Hex(bytes);
 	const id = identify(state.release, sha256);
-	const unit = state.unit || 'op-xy';
 	state.inst = { bytes, sha256, modified: new Date(file.lastModified),
 		title: id ? id.name + ' from release ' + id.tag : file.name + ', your own file',
 		text: id ? 'Its SHA-256 is the one GitHub lists for the release.' :
 			'This is not a file of the latest release' + (state.release ? ' (' + state.release.tag + ')' : '') +
 			'. It is copied as it is.' };
-	if (id && id.unit && id.unit !== unit) {
+	if (id && id.name !== INSTALLER) {
 		state.inst.bad = true;
-		state.inst.text = 'This is the installer for the ' + UNITS[id.unit].name + ', not the ' + UNITS[unit].name + '.';
+		state.inst.text = 'This is ' + id.name + ' of release ' + id.tag + ', not the installer. Choose ' + INSTALLER + '.';
 	}
 	state.copy = {};
 	log('Installer: ' + state.inst.title + ', ' + bytes.length + ' bytes, sha256 ' + sha256 + '.');
