@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-2-or-later
 """Draws the two units for the install page: docs/devices/.
 
     tools/web_devices.py
@@ -35,7 +35,7 @@ XY = {
     'accent': '#e2412b', 'knobs': ('#3b3d42', '#7b7f87', '#b9bbbd', '#f3f3f0'), 'collar': '#0c0c0d',
     'dish': '#222325', 'dish-edge': '#0b0b0c', 'volume': '#b4b6b8', 'switch': '#d9d9d5', 'tile': '#27282a',
     'well': '#0a0a0b', 'hole': '#050506', 'mark': '#8d8f93', 'steps': ('#4b4f56', '#dcdbd6'),
-    'ring': 3.2, 'grille': 'octagon', 'tick': True,
+    'ring': 3.2, 'grille': 'octagon', 'tick': True, 'sub-size': 8.5, 'sub-weight': 400,
 }
 FIELD = {
     'name': 'op-1-field', 'title': 'OP-1 Field',
@@ -81,16 +81,18 @@ class Drawing:
         ink, n = self.var(color), num
         line = ('fill="none" stroke="%s" stroke-width="%s" stroke-linecap="round" stroke-linejoin="round"'
                 % (ink, self.look.get('stroke', 1.6)))
+        thin = 'fill="none" stroke="%s" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"' % ink
+        at = 'transform="translate(%s %s)"' % (n(x), n(y))
         if kind == 'rec':
-            return '<circle cx="%s" cy="%s" r="4.5" fill="%s"/>' % (n(x), n(y), ink)
+            return '<circle cx="%s" cy="%s" r="4.7" fill="%s"/>' % (n(x), n(y), ink)
         if kind == 'play':
-            return '<path d="M%s %sv10l9-5z" fill="%s"/>' % (n(x - 3.5), n(y - 5), ink)
+            return '<path d="M%s %sv11l10-5.5z" fill="%s"/>' % (n(x - 4), n(y - 5.5), ink)
         if kind == 'stop':
             return '<rect x="%s" y="%s" width="9" height="9" fill="%s"/>' % (n(x - 4.5), n(y - 4.5), ink)
         if kind == 'minus':
-            return '<path d="M%s %sh14" %s/>' % (n(x - 7), n(y), line)
+            return '<path d="M%s %sh18" %s/>' % (n(x - 9), n(y), thin)
         if kind == 'plus':
-            return '<path d="M%s %sh14M%s %sv14" %s/>' % (n(x - 7), n(y), n(x), n(y - 7), line)
+            return '<path d="M%s %sh18M%s %sv18" %s/>' % (n(x - 9), n(y), n(x), n(y - 9), thin)
         if kind == 'left':
             return '<path d="M%s %sh-14m5-5l-5 5 5 5" %s/>' % (n(x + 7), n(y), line)
         if kind == 'right':
@@ -135,111 +137,121 @@ class Drawing:
             return ('<circle cx="%s" cy="%s" r="6" %s/><circle cx="%s" cy="%s" r="1.6" fill="%s"/>'
                     '<path d="M%s %sv5" %s/>' % (n(x), n(y), line, n(x), n(y - 0.5), ink, n(x), n(y + 1), line))
         if kind == 'nib':
-            return ('<g transform="translate(%s %s) rotate(45)"><path d="M0 9.5l-4.3-7.5 1.5-4.5h5.6l1.5 4.5z'
-                    'M-3.2-8h6.4v3.2h-6.4z" fill="%s"/><path d="M0 8v-5.5" fill="none" stroke="%s" '
-                    'stroke-width="1.1"/><circle cy="1.5" r="1.2" fill="%s"/></g>'
+            return ('<g transform="translate(%s %s) rotate(45) scale(1.2)"><path d="M0 9.5l-4.3-7.5 1.5-4.5h5.6'
+                    'l1.5 4.5zM-3.2-8.5h6.4v3.7h-6.4z" fill="%s"/><path d="M0 8v-5.5" fill="none" stroke="%s" '
+                    'stroke-width=".9"/><circle cy="1.5" r="1.1" fill="%s"/></g>'
                     % (n(x), n(y), ink, self.var('key'), self.var('key')))
         if kind == 'metro':
-            return ('<path d="M%s %sh13l-4-15h-5z" fill="%s"/><path d="M%s %sv-8" fill="none" stroke="%s" '
-                    'stroke-width="1.6"/>' % (n(x - 6.5), n(y + 7.5), ink, n(x), n(y + 3), self.var('key')))
+            return ('<g %s><path d="M-6.5 8h13l-4-16.5h-5z" fill="%s"/><path d="M0-7v10" fill="none" stroke="%s" '
+                    'stroke-width="1.2"/><rect x="-1.6" y="-4.2" width="3.2" height="2.6" fill="%s"/></g>'
+                    % (at, ink, self.var('key'), self.var('key')))
         if kind == 'sine':
-            return '<path d="M%s %sc3-10 5.5-10 8 0s5 10 8 0" %s/>' % (n(x - 8), n(y - .5), line)
+            return '<path d="M%s %sc3.4-9.5 6-9.5 9 0s5.6 9.5 9 0" %s/>' % (n(x - 9), n(y - 1), thin)
         if kind == 'hatch':
-            return ('<rect x="%s" y="%s" width="9" height="9" fill="%s"/><path d="M%s %sl3-3M%s %sl6-6M%s %sl9-9'
-                    'M%s %sl6-6M%s %sl3-3" fill="none" stroke="%s" stroke-width=".8"/>'
-                    % (n(x - 4.5), n(y - 4.5), ink, n(x - 4.5), n(y - 1.5), n(x - 4.5), n(y + 1.5),
-                       n(x - 4.5), n(y + 4.5), n(x - 1.5), n(y + 4.5), n(x + 1.5), n(y + 4.5), self.var('key')))
+            return ('<rect x="%s" y="%s" width="10" height="10" fill="%s"/><path d="M%s %sl3.3-3.3M%s %sl6.6-6.6'
+                    'M%s %sl10-10M%s %sl6.6-6.6M%s %sl3.3-3.3" fill="none" stroke="%s" stroke-width="1"/>'
+                    % (n(x - 5), n(y - 5), ink, n(x - 5), n(y - 1.7), n(x - 5), n(y + 1.6), n(x - 5), n(y + 5),
+                       n(x - 1.6), n(y + 5), n(x + 1.7), n(y + 5), self.var('key')))
         if kind == 'plug':
-            return ('<path d="M%s %sh19" %s/><rect x="%s" y="%s" width="9" height="5" rx="1" fill="%s"/>'
-                    '<circle cx="%s" cy="%s" r="1.6" fill="%s"/>'
-                    % (n(x - 10), n(y), line, n(x - 6), n(y - 2.5), ink, n(x + 9), n(y), ink))
+            return ('<g %s><path d="M-12.5-1.2h4l2.2-1.9h8.3l1.5 1.9h5.5v2.4h-5.5l-1.5 1.9h-8.3l-2.2-1.9h-4z" fill="%s"/>'
+                    '<circle cx="11.5" r="1.9" fill="%s"/></g>' % (at, ink, ink))
         if kind == 'blocks':
-            return ('<path d="M%s %sh7v5h-7zM%s %sh7v5h-7z" fill="none" stroke="%s" stroke-width="1.2"/>'
-                    '<rect x="%s" y="%s" width="7.6" height="5.5" fill="%s"/>'
-                    % (n(x - 11.5), n(y - 1.5), n(x + 4.5), n(y - 1.5), ink, n(x - 3.8), n(y - 4), ink))
+            return ('<g %s><path d="M-13.2-.5h6v4h-6zM.2-.5h6v4h-6zM7.2-.5h6v4h-6z" fill="none" stroke="%s" '
+                    'stroke-width="1"/><rect x="-7.2" y="-3.5" width="7.4" height="5.5" fill="%s"/></g>'
+                    % (at, ink, ink))
         if kind == 'faders':
-            return ''.join('<path d="M%s %sv14M%s %sh3.6" fill="none" stroke="%s" stroke-width="1.2"/>'
-                           % (n(x + dx), n(y - 7), n(x + dx - 1.8), n(y + dy), ink)
-                           for dx, dy in ((-8, 2), (-4, -3), (0, 0), (4, -4), (8, 3)))
+            return ''.join('<path d="M%s %sv17" fill="none" stroke="%s" stroke-width=".9"/>'
+                           '<rect x="%s" y="%s" width="2.6" height="3.4" fill="%s"/>'
+                           % (n(x + dx), n(y - 8.5), ink, n(x + dx - 1.3), n(y + dy - 1.7), ink)
+                           for dx, dy in ((-8.75, 3), (-5.25, -1.5), (-1.75, .5), (1.75, -3.5), (5.25, -2),
+                                          (8.75, 2)))
         if kind == 'sample':
-            return ''.join('<path d="M%s %sv%s" %s/>' % (n(x + dx), n(y - h / 2), n(h), line)
-                           for dx, h in ((-9, 1), (-5.5, 5), (-2, 13), (1.5, 7), (5, 3), (8.5, 1)))
+            return ''.join('<rect x="%s" y="%s" width="1.4" height="%s" fill="%s"/>'
+                           % (n(x + dx - .7), n(y - h / 2), n(h), ink)
+                           for dx, h in ((-8, 1.8), (-5.3, 5), (-2.7, 13.5), (0, 5), (2.7, 1.8), (5.3, 1.8),
+                                         (8, 1.8)))
         if kind == 'pixels':
             return ''.join('<rect x="%s" y="%s" width="3" height="3" fill="%s"/>' % (n(x + dx), n(y + dy), ink)
                            for dx, dy in ((-10.5, 2), (-6.5, 2), (-2.5, -1.5), (1.5, -5), (5.5, -1.5), (9.5, -1.5)))
         if kind == 'four':
-            return ''.join('<circle cx="%s" cy="%s" r="2.3" fill="%s"/>' % (n(x + dx), n(y), ink)
+            return ''.join('<circle cx="%s" cy="%s" r="2.7" fill="%s"/>' % (n(x + dx), n(y), ink)
                            for dx in (-9.6, -3.2, 3.2, 9.6))
         if kind == 'hand':
-            return ('<path d="M%s %sl-2.5-7M%s %sl-.8-9M%s %sl1-9M%s %sl2.8-7M%s %sl-4-3" fill="none" '
+            return ('<g transform="rotate(-14 %s %s) translate(%s %s) scale(.9)">'
+                    '<path d="M%s %sl-2.5-7M%s %sl-.8-9M%s %sl1-9M%s %sl2.8-7M%s %sl-4-3" fill="none" '
                     'stroke="%s" stroke-width="2.2" stroke-linecap="round"/>'
                     '<path d="M%s %sh9l-1 7h-6z" fill="%s" stroke="%s" stroke-width="1.5" stroke-linejoin="round"/>'
-                    % (n(x - 3.5), n(y + 1), n(x - 1), n(y), n(x + 1.8), n(y), n(x + 4.5), n(y + 1),
-                       n(x - 4), n(y + 5), ink, n(x - 4), n(y + 1), ink, ink))
+                    '</g>'
+                    % (n(x), n(y), n(x * .1), n(y * .1), n(x - 3.5), n(y + 1), n(x - 1), n(y), n(x + 1.8), n(y),
+                       n(x + 4.5), n(y + 1), n(x - 4), n(y + 5), ink, n(x - 4), n(y + 1), ink, ink))
         if kind == 'divide':
-            return ('<path d="M%s %sh16" %s/><circle cx="%s" cy="%s" r="2" fill="%s"/>'
-                    '<circle cx="%s" cy="%s" r="2" fill="%s"/>'
-                    % (n(x - 8), n(y), line, n(x), n(y - 6), ink, n(x), n(y + 6), ink))
+            return ('<path d="M%s %sh17" %s/><circle cx="%s" cy="%s" r="2.2" fill="%s"/>'
+                    '<circle cx="%s" cy="%s" r="2.2" fill="%s"/>'
+                    % (n(x - 8.5), n(y), thin, n(x), n(y - 5.8), ink, n(x), n(y + 5.8), ink))
         if kind == 'ramp':
-            return '<path d="M%s %sh20v-9z" fill="%s"/>' % (n(x - 10), n(y + 5), ink)
+            return '<path d="M%s %sv-1.8l20-7.2v9z" fill="%s"/>' % (n(x - 10), n(y + 4.5), ink)
         if kind == 'stairs-up':
-            return '<path d="M%s %sv-4h5v-4h5v-4h8v3h-5v4h-5v4h-5v1z" fill="%s"/>' % (n(x - 9), n(y + 7), ink)
+            return '<path d="M-11 7v-3.5h5v-3.5h5.5v-3.5h5.5v-3h6v1.5l-16 12z" fill="%s" %s/>' % (ink, at)
         if kind == 'stairs-down':
-            return '<path d="M%s %sv-4h-5v-4h-5v-4h-8v3h5v4h5v4h5v1z" fill="%s"/>' % (n(x + 9), n(y + 7), ink)
+            return '<path d="M11 7v-3.5h-5v-3.5h-5.5v-3.5h-5.5v-3h-6v1.5l16 12z" fill="%s" %s/>' % (ink, at)
         if kind == 'notes':
-            return ('<circle cx="%s" cy="%s" r="2" fill="%s"/><circle cx="%s" cy="%s" r="2" fill="%s"/>'
-                    '<path d="M%s %sv-9M%s %sv-9l3 2" fill="none" stroke="%s" stroke-width="1.2"/>'
-                    '<path d="M%s %sl7-4" fill="none" stroke="%s" stroke-width="1.2" stroke-dasharray="1.5 1.5"/>'
-                    % (n(x - 8), n(y + 5), ink, n(x + 5), n(y + 4), ink, n(x - 6.2), n(y + 5),
-                       n(x + 6.8), n(y + 4), ink, n(x - 4), n(y + 1), ink))
+            return ('<g %s><circle cx="-8.5" cy="5.5" r="2" fill="%s"/><circle cx="8.3" cy="-5.2" r="1.7" fill="none" '
+                    'stroke="%s"/><path d="M-6.9 5.5v-11.5M6.5-5.2v11.7M-3.8 1.8q.9-2 1.9-.6t1.9-.6 1.9-.6 '
+                    '1.8-1.6" %s/></g>' % (at, ink, ink, thin))
         if kind == 'fin':
-            return ('<path d="M%s %sq1-13 9-16q-3 8 0 16zM%s %sq0-7 4-10q-1 5 3 10z" fill="%s"/>'
-                    % (n(x - 8), n(y + 8), n(x + 3), n(y + 8), ink))
+            return ('<g transform="translate(%s %s) scale(.85)"><path d="M-9 8.5c1-9.5 7-16.5 14-18-3 6.5-1 14.5 5 18z" '
+                    'fill="%s"/><path d="M5-9.5c-6 5-6.5 12-5.5 18" fill="none" stroke="%s" stroke-width="1.1"/></g>'
+                    % (n(x), n(y), ink, self.var('key')))
         if kind == 'clover':
-            return ''.join('<circle cx="%s" cy="%s" r="3.6" fill="%s"/>' % (n(x + dx), n(y + dy), ink)
-                           for dx, dy in ((-3.8, -3.8), (3.8, -3.8), (-3.8, 3.8), (3.8, 3.8)))
+            blade = '<path d="M0 0c-1.5-3-2-7.5 2.5-8 4.5-.5 5 4.5 2.5 6-1.5 1-3.5 1.5-5 2z" transform="rotate(%d)"/>'
+            return '<g %s fill="%s">%s<circle r=".9" fill="%s"/></g>' % (
+                at, ink, ''.join(blade % a for a in (0, 90, 180, 270)), self.var('key'))
         if kind == 'into':
             return '<path d="M%s %sh12m-4-4l4 4-4 4" %s/><circle cx="%s" cy="%s" r="2.6" fill="%s"/>' % (
-                n(x - 11), n(y), line, n(x + 8), n(y), ink)
+                n(x - 11), n(y), thin.replace('width="1"', 'width="1.3"'), n(x + 8), n(y), ink)
         if kind == 'wheel':
             return ('<circle cx="%s" cy="%s" r="7.5" fill="%s"/><path d="M%s %sh15M%s %sv15M%s %sl10.6 10.6'
                     'M%s %sl-10.6 10.6" fill="none" stroke="%s" stroke-width="1.3"/>'
                     % (n(x), n(y), ink, n(x - 7.5), n(y), n(x), n(y - 7.5), n(x - 5.3), n(y - 5.3),
                        n(x + 5.3), n(y - 5.3), self.var('key')))
         if kind == 'burst':
-            return ('<circle cx="%s" cy="%s" r="5" fill="none" stroke="%s" stroke-width="5" '
-                    'stroke-dasharray="2.2 1.727"/>' % (n(x), n(y), ink))
+            return ('<circle cx="%s" cy="%s" r="3.75" fill="none" stroke="%s" stroke-width="7.5" '
+                    'stroke-dasharray=".8 .6726"/>' % (n(x), n(y), ink))
         if kind == 'sun':
-            return ('<circle cx="%s" cy="%s" r="3.6" fill="%s"/><circle cx="%s" cy="%s" r="6.5" fill="none" '
-                    'stroke="%s" stroke-width="4" stroke-dasharray=".9 1.369"/>' % (n(x), n(y), ink, n(x), n(y), ink))
+            return ('<circle cx="%s" cy="%s" r="4.85" fill="none" stroke="%s" stroke-width="5.3" '
+                    'stroke-dasharray=".45 .5023"/>' % (n(x), n(y), ink))
         if kind == 'dome':
-            return '<path d="M%s %sa5 5 0 0 1 10 0zM%s %sh12v1.5h-12z" fill="%s"/>' % (
-                n(x - 5), n(y + 1), n(x - 6), n(y + 2.5), ink)
+            return ('<path d="M-5.5-1.5a5.5 5.5 0 0 1 11 0zM-6.8-.6h13.6v1.6h-13.6zM-4 1h8v2.2h-8z" '
+                    'fill="%s" %s/>' % (ink, at))
         if kind == 'blob':
-            return '<path d="M%s %sa5 5 0 1 1 7 4.5l-1 3.5h-3v-2.5h-2z" fill="%s"/>' % (n(x - 4), n(y + 1), ink)
+            return ('<g %s><path d="M-4.6.5a5.2 5.2 0 1 1 8.3 3.2l.3 3.8h-4.6v-2h-2.2l-.4-2.6-1.5-.6z" '
+                    'fill="%s"/><path d="M-2.3-1.2a3 3 0 0 1 5.7-1M0 1.2a2 2 0 0 1 2.9-2.3" fill="none" '
+                    'stroke="%s" stroke-width=".9"/></g>' % (at, ink, self.var('key')))
         if kind == 'dial':
-            return ('<circle cx="%s" cy="%s" r="4.8" fill="none" stroke="%s" stroke-width="1.2"/>'
-                    '<circle cx="%s" cy="%s" r="1.5" fill="%s"/>' % (n(x), n(y), ink, n(x), n(y), ink))
+            return ('<g %s><circle r="5.2" fill="none" stroke="%s" stroke-width="1.1"/>'
+                    '<circle r="3.2" fill="none" stroke="%s" stroke-width="1.3" stroke-dasharray=".8 1.713" '
+                    'stroke-dashoffset="-10.9" pathLength="20.1"/><rect x="-1.1" y="1.6" width="2.2" height="2.2" '
+                    'fill="%s"/></g>' % (at, ink, ink, ink))
         if kind == 'cv':
-            return self.text('cv', x, y, 9, weight=400)
+            return self.text('cv', x, y, 10.5, weight=300)
         if kind == 'kit':
-            return ('<rect x="%s" y="%s" width="12" height="3" fill="%s"/><circle cx="%s" cy="%s" r="2" fill="%s"/>'
-                    '<circle cx="%s" cy="%s" r="2" fill="%s"/><path d="M%s %sv-3" fill="none" stroke="%s" '
-                    'stroke-width="2"/>' % (n(x - 6), n(y - 3), ink, n(x - 3), n(y + 4), ink, n(x + 3), n(y + 4), ink,
-                                            n(x), n(y - 3), ink))
+            return ('<g %s><path d="M-7-3.2h14" fill="none" stroke="%s" stroke-width="1.2"/>'
+                    '<path d="M-3.5-5.3h7l1 2.1-1 2.1h-7l-1-2.1z" fill="%s"/><circle cx="-3.4" cy="3.6" r="2.1" '
+                    'fill="%s"/><circle cx="3.3" cy="3.6" r="1.6" fill="none" stroke="%s" stroke-width="1.1"/></g>'
+                    % (at, ink, ink, ink, ink))
         if kind == 'tape-s':
-            return ('<circle cx="%s" cy="%s" r="2.6" fill="none" stroke="%s" stroke-width="1.2"/>'
-                    '<circle cx="%s" cy="%s" r="2.6" fill="none" stroke="%s" stroke-width="1.2"/>'
-                    '<path d="M%s %sh7" fill="none" stroke="%s" stroke-width="1.2"/>'
-                    % (n(x - 3.5), n(y), ink, n(x + 3.5), n(y), ink, n(x - 3.5), n(y + 2.6), ink))
+            return ('<circle cx="%s" cy="%s" r="3" fill="none" stroke="%s" stroke-width="1.1"/>'
+                    '<circle cx="%s" cy="%s" r="3" fill="none" stroke="%s" stroke-width="1.1"/>'
+                    '<path d="M%s %sh8" fill="none" stroke="%s" stroke-width="1.1"/>'
+                    % (n(x - 4), n(y), ink, n(x + 4), n(y), ink, n(x - 4), n(y + 3), ink))
         if kind == 'loop-s':
             return ('<rect x="%s" y="%s" width="10" height="5.5" rx="2.75" fill="none" stroke="%s" '
                     'stroke-width="1.2"/><path d="M%s %sl-2.5-2.5v5z" fill="%s"/>'
                     % (n(x - 5), n(y - 2.5), ink, n(x - 1.5), n(y - 2.5), ink))
         if kind in ('fx1', 'fx2'):
-            return ('<rect x="%s" y="%s" width="14" height="10" fill="none" stroke="%s" stroke-width="1.1"/>%s%s'
-                    % (n(x - 7), n(y - 5), ink, self.text('FX', x, y, 7.5, weight=600),
-                       self.text('I' if kind == 'fx1' else 'II', x - 5, y + 12, 6, weight=600)))
+            return ('<rect x="%s" y="%s" width="14" height="10" fill="none" stroke="%s"/>%s%s'
+                    % (n(x - 7), n(y - 5), ink, self.text('FX', x, y, 8, weight=500),
+                       self.text('I' if kind == 'fx1' else 'II', x - 5.5, y + 12.5, 5.5, weight=500)))
         return ''
 
     def text(self, label, x, y, size=13, color='ink', weight=500):
@@ -263,19 +275,20 @@ class Drawing:
         x = cx(col) if x is None else x
         y = cy(row)
         up = 4 if sub else 0
-        at = x - 6 if side else x
+        left = x - (9 if side.startswith('fx') else 7.5 if side else 0)
         inner = ''
         if led:
             inner += '<circle cx="%s" cy="%s" r="1.5" fill="%s" fill-opacity=".55"/>' % (
                 num(x), num(y - 12), self.var('hole'))
         inner += self.glyph(mark, x, y - up, color) if mark else ''
         if label:
-            inner += self.text(label, at, y - up, size, weight=weight)
+            inner += self.text(label, left, y - up, size, weight=weight)
         if side:
-            inner += self.glyph(side, x + 6, y)
+            inner += self.glyph(side, x + (5.5 if side.startswith('fx') else 7.5), y)
         if sub:
             small = self.glyph(sub, x, y + 8)
-            inner += small or self.text(sub, x, y + 8.5, 7, weight=self.look.get('sub-weight', 500))
+            inner += small or self.text(sub, x, y + 9, self.look.get('sub-size', 7),
+                                        weight=self.look.get('sub-weight', 500))
         self.add('<g id="%s">%s%s</g>' % (name, self.disc(x, y, r, self.var('key')), inner))
         self.part(name, x, y, 2 * r, 2 * r, 'circle')
 
@@ -377,7 +390,7 @@ class Drawing:
         self.key('key-rec', 1, 5, 'rec', color='accent')
         self.key('key-play', 2, 5, 'play')
         self.key('key-stop', 3, 5, stop)
-        self.key('key-shift', 3, 6, label='shift', size=11, weight=400)
+        self.key('key-shift', 3, 6, label='shift', size=12, weight=400 if self.look.get('light') else 300)
 
     def finish(self):
         self.add('</svg>')
@@ -403,9 +416,9 @@ def op_xy():
     d.key('key-arrange', 3, 3, 'blocks')
     d.key('key-mix', 4, 3, 'faders')
     for i in range(1, 5):
-        d.key('key-m%d' % i, 4 + i, 3, label=str(i), size=19, weight=300)
+        d.key('key-m%d' % i, 4 + i, 3, label=str(i), size=21, weight=300)
     for i, side in enumerate(('blob', 'dome', 'dial', 'cv', 'kit', 'tape-s', 'fx1', 'fx2'), 1):
-        d.key('key-sound-%d' % i, 8 + i, 3, label=str(i), size=13, weight=300, led=True, side=side)
+        d.key('key-sound-%d' % i, 8 + i, 3, label=str(i), size=14, weight=300, led=True, side=side)
     d.key('key-players', 17, 3, 'pixels')
     # The sixteen step keys run from dark to light two at a time, tile and cap alike.
     for col in range(1, 17):
@@ -419,17 +432,17 @@ def op_xy():
                  num(x), num(y), num(R + XY['ring']), num(x), num(y), R, color, num(x), num(y - 11.5)))
         d.part(name, x, y, 2 * R, 2 * R, 'circle')
     x, y = cx(17), cy(4)
-    d.add('<g id="key-bar">%s%s<rect x="%s" y="%s" width="21" height="9.5" rx="1.5" fill="%s"/>'
-          '<text x="%s" y="%s" font-size="7.5" font-weight="500" fill="%s">BAR</text></g>'
-          % (d.disc(x, y, R, v('key')), d.text('1–4', x, y - 7.5, 6, weight=500), num(x - 10.5), num(y - 2.5),
-             v('ink'), num(x), num(y + 5), v('key')))
+    d.add('<g id="key-bar">%s%s<rect x="%s" y="%s" width="23" height="11" rx="1.5" fill="%s"/>'
+          '<text x="%s" y="%s" font-size="8.5" font-weight="400" letter-spacing=".3" fill="%s">BAR</text></g>'
+          % (d.disc(x, y, R, v('key')), d.text('1–4', x, y - 8, 6.5, weight=600), num(x - 11.5), num(y - 3),
+             v('ink'), num(x), num(y + 5.6), v('key')))
     d.part('key-bar', x, y, 2 * R, 2 * R, 'circle')
     d.keyboard_side('hatch')
     d.key('key-minus', 1, 6, 'minus')
     d.key('key-plus', 2, 6, 'plus')
-    d.add(d.text('num', X0 + 3 * CELL + 13, cy(5) - 16, 9, weight=400))
+    d.add(d.text('num', X0 + 3 * CELL + 15, cy(5) - 16.5, 10.5, weight=300))
     for n, col in enumerate(BLACK):
-        d.key('key-num-%d' % ((n + 1) % 10), col, 5, label=str((n + 1) % 10), size=13, weight=300,
+        d.key('key-num-%d' % ((n + 1) % 10), col, 5, label=str((n + 1) % 10), size=14, weight=300,
               x=X0 + col * CELL, led=True)
     marks = ('four', 'hand', 'divide', 'ramp', 'stairs-up', 'stairs-down', '', 'notes', 'fin', 'clover',
              'into', 'wheel', 'burst', 'sun')
